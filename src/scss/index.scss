@@ -4,7 +4,7 @@ $color1: #868aaf;
 $color2: #db3baa;
 $color2-dark: darken($color2, 10%);
 $color2-darker: darken($color2, 30%);
-$color5: #0025f1;
+$color3: #0025f1;
 * {
   margin: 0;
   padding: 0;
@@ -12,8 +12,10 @@ $color5: #0025f1;
 #player {
   height: 100vh;
   background-color: $background;
+  overflow: hidden;
   .header {
     text-align: center;
+    height: 110px;
     h1 {
       padding-top: 20px;
       color: $color1;
@@ -23,8 +25,6 @@ $color5: #0025f1;
       color: $color1;
       font-size: 12px;
     }
-  }
-  .area-effect {
     .balls {
       display: flex;
       justify-content: center;
@@ -44,5 +44,140 @@ $color5: #0025f1;
         }
       }
     }
+  }
+  .panels {
+    height: calc(100vh - 250px);
+    display: flex;
+    align-items: center;
+    width: 200vw;
+    transition: all 0.5s;
+    &.panels1 {
+      transform: translateX(-100vw);
+    }
+    .panel-effect {
+      width: 100vw;
+      .effect {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 48vh;
+        div {
+          position: absolute;
+          background-size: contain;
+        }
+        .effect-1 {
+          background: url('../svg/effect-no-move.svg') 0 0 no-repeat;
+          width: 70vw;
+          height: 70vw;
+          animation: rotate 10s linear infinite;
+        }
+        .effect-2 {
+          background: url('../svg/effect-move2.svg') 0 0 no-repeat;
+          width: 60vw;
+          height: 60vw;
+          animation: rotate 10s linear infinite reverse;
+        }
+        .effect-3 {
+          background: url('../svg/effect-move2.svg') 0 0 no-repeat;
+          width: 24vw;
+          height: 24vw;
+          animation: rotate 10s linear infinite;
+        }
+      }
+      .lyrics {
+        text-align: center;
+        p {
+          font-size: 13px;
+          color: $color1;
+          margin-top: 10px;
+          &.current {
+            color: $color;
+          }
+        }
+      }
+    }
+    .panel-lyrics {
+      width: 100vw;
+      height: 100%;
+      background-color: red;
+    }
+  }
+  .footer {
+    height: 140px;
+    .buttons {
+      display: flex;
+      justify-content: center;
+      svg {
+        width: 24px;
+        height: 24px;
+        margin: 0 20px;
+      }
+    }
+    .area-bar {
+      color: $color1;
+      font-size: 12px;
+      display: flex;
+      padding: 0 20px;
+      margin-top: 20px;
+      align-items: center;
+      .time-start {
+        order: 1;
+      }
+      .time-end {
+        order: 3;
+      }
+      .bar {
+        order: 2;
+        flex: 1;
+        height: 4px;
+        background-color: $color3;
+        border-radius: 2px;
+        margin: 0 10px;
+        .progress {
+          width: 30%;
+          height: 100%;
+          border-radius: 2px;
+          background-color: $color2;
+          position: relative;
+        }
+        .progress::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: -6px;
+          display: block;
+          width: 16px;
+          height: 16px;
+          background: url(../svg/progress.svg) 0 0 no-repeat;
+          background-size: contain;
+        }
+      }
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding: 0 20px;
+
+      svg {
+        width: 28px;
+        height: 28px;
+
+        &.btn-play-pause {
+          width: 50px;
+          height: 50px;
+        }
+      }
+    }
+  }
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
