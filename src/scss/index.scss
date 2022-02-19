@@ -1,0 +1,48 @@
+$background: #060a3d;
+$color: #fff;
+$color1: #868aaf;
+$color2: #db3baa;
+$color2-dark: darken($color2, 10%);
+$color2-darker: darken($color2, 30%);
+$color5: #0025f1;
+* {
+  margin: 0;
+  padding: 0;
+}
+#player {
+  height: 100vh;
+  background-color: $background;
+  .header {
+    text-align: center;
+    h1 {
+      padding-top: 20px;
+      color: $color1;
+      font-size: 20px;
+    }
+    p {
+      color: $color1;
+      font-size: 12px;
+    }
+  }
+  .area-effect {
+    .balls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      span {
+        display: block;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: $color2-dark;
+        margin: 0 4px;
+        &.current {
+          width: 8px;
+          height: 8px;
+          background-color: $color2;
+        }
+      }
+    }
+  }
+}

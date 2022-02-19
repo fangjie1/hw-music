@@ -1,0 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#player {
+  height: 100vh;
+  background-color: #060a3d;
+}
+#player .header {
+  text-align: center;
+}
+#player .header h1 {
+  padding-top: 20px;
+  color: #868aaf;
+  font-size: 20px;
+}
+#player .header p {
+  color: #868aaf;
+  font-size: 12px;
+}
+#player .area-effect .balls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+#player .area-effect .balls span {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #c02390;
+  margin: 0 4px;
+}
+#player .area-effect .balls span.current {
+  width: 8px;
+  height: 8px;
+  background-color: #db3baa;
+}
+
+/*# sourceMappingURL=/scss.8c25d549.css.map */
