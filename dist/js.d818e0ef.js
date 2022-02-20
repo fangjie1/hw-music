@@ -134,60 +134,75 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Swiper = void 0;
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var Swiper = /*#__PURE__*/function () {
+  function Swiper(node) {
+    _classCallCheck(this, Swiper);
 
-var Swiper = /*#__PURE__*/_createClass(function Swiper(node) {
-  _classCallCheck(this, Swiper);
+    if (!node) throw new Error('需要传递需要绑定的DOM元素');
+    this.root = typeof node === 'string' ? document.querySelector(node) : node;
+    this.eventHub = {
+      swiperLeft: [],
+      swiperRight: []
+    };
+    this.bind();
+  }
 
-  if (!node) throw new Error('需要传递需要绑定的DOM元素');
-  var root = typeof node === 'string' ? document.querySelector(node) : node;
-  var eventHub = {
-    'swiperLeft': [],
-    'swiperRight': []
-  };
-  var initX;
-  var newX;
-  var clock;
+  _createClass(Swiper, [{
+    key: "bind",
+    value: function bind() {
+      var _this = this;
 
-  root.ontouchstart = function (e) {
-    initX = e.changedTouches[0].pageX;
-  };
+      var initX,
+          newX,
+          clock = null;
 
-  root.ontouchmove = function (e) {
-    if (clock) clearInterval(clock);
-    clock = setTimeout(function () {
-      newX = e.changedTouches[0].pageX;
+      this.root.ontouchstart = function (e) {
+        initX = e.changedTouches[0].pageX;
+      };
 
-      if (newX - initX > 50) {
-        eventHub['swiperRight'].forEach(function (fn) {
-          return fn.bind(root)();
-        });
-      } else if (initX - newX > 50) {
-        eventHub['swiperLeft'].forEach(function (fn) {
-          return fn.bind(root)();
-        });
+      this.root.ontouchmove = function (e) {
+        if (clock) clearInterval(clock);
+        clock = setTimeout(function () {
+          newX = e.changedTouches[0].pageX;
+
+          if (newX - initX > 50) {
+            _this.eventHub['swiperRight'].forEach(function (fn) {
+              return fn.bind(_this.root)();
+            });
+          } else if (initX - newX > 50) {
+            _this.eventHub['swiperLeft'].forEach(function (fn) {
+              return fn.bind(_this.root)();
+            });
+          }
+        }, 100);
+      };
+    }
+  }, {
+    key: "on",
+    value: function on(type, fn) {
+      if (this.eventHub[type]) {
+        this.eventHub[type].push(fn);
       }
-    }, 100);
-  };
-
-  this.on = function (type, fn) {
-    if (eventHub[type]) {
-      eventHub[type].push(fn);
     }
-  };
+  }, {
+    key: "off",
+    value: function off(type, fn) {
+      var index = this.eventHub[type].indexOf(fn);
 
-  this.off = function (type, fn) {
-    var index = eventHub[type].indexOf(fn);
-
-    if (index !== -1) {
-      eventHub[type].splice(index, 1);
+      if (index !== -1) {
+        this.eventHub[type].splice(index, 1);
+      }
     }
-  };
-});
+  }]);
+
+  return Swiper;
+}();
 
 exports.Swiper = Swiper;
 },{}],"src/js/index.js":[function(require,module,exports) {
@@ -222,9 +237,12 @@ var Player = /*#__PURE__*/function () {
     this.songList = [];
     this.currentIndex = 0;
     this.audio = new Audio();
+    this.lyricsArr = [];
+    this.lyricIndex = 0;
     this.start();
     this.bind();
-  }
+  } // 获取歌曲数据
+
 
   _createClass(Player, [{
     key: "start",
@@ -235,8 +253,11 @@ var Player = /*#__PURE__*/function () {
         return res.json();
       }).then(function (data) {
         _this2.songList = data;
-        console.log(_this2.songList);
         _this2.audio.src = _this2.songList[_this2.currentIndex].url;
+
+        _this2.audio.onloadedmetadata = function () {
+          return _this2.$('.time-end').innerText = _this2.formateTime(_this2.audio.duration);
+        };
 
         _this2.loadSong();
       });
@@ -266,6 +287,11 @@ var Player = /*#__PURE__*/function () {
 
       this.$('.btn-next').onclick = function () {
         self.playNextSong();
+      };
+
+      this.audio.ontimeupdate = function () {
+        self.locateLyric();
+        self.setProgressBar();
       };
 
       var swiper = new _swiper.Swiper(this.$('.panels'));
@@ -318,9 +344,92 @@ var Player = /*#__PURE__*/function () {
   }, {
     key: "loadLyric",
     value: function loadLyric() {
+      var _this5 = this;
+
       fetch(this.songList[this.currentIndex].lyric).then(function (res) {
         return res.json();
+      }).then(function (data) {
+        _this5.setLyrics(data.lrc.lyric);
+
+        _this5.locateLyric();
       });
+    } // 处理歌词
+
+  }, {
+    key: "setLyrics",
+    value: function setLyrics(lyrics) {
+      var fragment = document.createDocumentFragment();
+      var lyricsArr = [];
+      this.lyricsArr = lyricsArr;
+      lyrics.split(/\n/).filter(function (str) {
+        return str.match(/\[.+?\]/);
+      }).forEach(function (line) {
+        var str = line.replace(/\[.+?\]/g, '');
+        line.match(/\[.+?\]/g).forEach(function (t) {
+          t = t.replace(/[\[\]]/g, '');
+          var milliseconds = parseInt(t.slice(0, 2)) * 60 * 1000 + parseInt(t.slice(3, 5)) * 1000 + parseInt(t.slice(6));
+          lyricsArr.push([milliseconds, str]);
+        });
+      });
+      lyricsArr.filter(function (line) {
+        return line[1].trim() !== '';
+      }).sort(function (v1, v2) {
+        if (v1[0] < v2[0]) {
+          return -1;
+        } else {
+          return 1;
+        }
+      }).forEach(function (line) {
+        var node = document.createElement('p');
+        node.setAttribute('data-time', line[0]);
+        node.innerText = line[1];
+        fragment.appendChild(node);
+      });
+      this.$('.panel-lyrics .container').innerHTML = '';
+      this.$('.panel-lyrics .container').appendChild(fragment);
+    } // 获取当前歌词的DOM
+
+  }, {
+    key: "locateLyric",
+    value: function locateLyric() {
+      console.log(this.lyricsArr);
+      var currentTime = this.audio.currentTime * 1000;
+      var nextLineTime = this.lyricsArr[this.lyricIndex][0];
+
+      if (currentTime > nextLineTime && this.lyricIndex < this.lyricsArr.length - 1) {
+        var node = this.$('[data-time="' + this.lyricsArr[this.lyricIndex][0] + '"]');
+        if (node) this.setLineToCanter(node);
+        this.$$('.panel-effect .lyrics p')[0].innerText = this.lyricsArr[this.lyricIndex][1];
+        this.$$('.panel-effect .lyrics p')[1].innerText = this.lyricsArr[this.lyricIndex + 1][1];
+        this.lyricIndex++;
+      }
+    } // 歌词滚动
+
+  }, {
+    key: "setLineToCanter",
+    value: function setLineToCanter(node) {
+      var offset = node.offsetTop - this.$('.panels .container').offsetHeight / 2;
+      offset = offset > 0 ? offset : 0;
+      this.$('.panels .container').style.transform = "translateY(".concat(-offset, "px)");
+      this.$$('.container p').forEach(function (node) {
+        node.classList.remove('current');
+      });
+    }
+  }, {
+    key: "setProgressBar",
+    value: function setProgressBar() {
+      var percent = this.audio.currentTime * 100 / this.audio.duration + '%';
+      this.$('.bar .progress').style.width = percent;
+      this.$('.time-start').innerText = this.formateTime(this.audio.currentTime);
+    }
+  }, {
+    key: "formateTime",
+    value: function formateTime(secondsTotal) {
+      var minutes = parseInt(secondsTotal / 60);
+      minutes = minutes >= 10 ? '' + minutes : '0' + minutes;
+      var seconds = parseInt(secondsTotal % 60);
+      seconds = seconds >= 10 ? '' + seconds : '0' + seconds;
+      return minutes + ':' + seconds;
     }
   }]);
 
@@ -356,7 +465,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60081" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55607" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

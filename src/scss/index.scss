@@ -15,7 +15,7 @@ $color3: #0025f1;
   overflow: hidden;
   .header {
     text-align: center;
-    height: 110px;
+    height: 100px;
     h1 {
       padding-top: 20px;
       color: $color1;
@@ -24,12 +24,13 @@ $color3: #0025f1;
     p {
       color: $color1;
       font-size: 12px;
+      line-height: 1.5;
     }
     .balls {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-top: 20px;
+      margin-top: 15px;
       span {
         display: block;
         width: 5px;
@@ -46,7 +47,7 @@ $color3: #0025f1;
     }
   }
   .panels {
-    height: calc(100vh - 250px);
+    height: calc(100vh - 240px);
     display: flex;
     align-items: center;
     width: 200vw;
@@ -100,7 +101,20 @@ $color3: #0025f1;
     .panel-lyrics {
       width: 100vw;
       height: 100%;
-      background-color: red;
+      text-align: center;
+      font-size: 20px;
+      line-height: 2;
+      overflow: hidden;
+      .container {
+        transition: all 0.3s;
+        p {
+          font-size: 14px;
+          color: $color1;
+          &.current {
+            color: $color;
+          }
+        }
+      }
     }
   }
   .footer {
@@ -108,6 +122,7 @@ $color3: #0025f1;
     .buttons {
       display: flex;
       justify-content: center;
+      margin-top: 10px;
       svg {
         width: 24px;
         height: 24px;
@@ -118,9 +133,11 @@ $color3: #0025f1;
       color: $color1;
       font-size: 12px;
       display: flex;
-      padding: 0 20px;
-      margin-top: 20px;
+      margin-top: 16px;
       align-items: center;
+      span {
+        padding: 0 12px;
+      }
       .time-start {
         order: 1;
       }
@@ -133,9 +150,8 @@ $color3: #0025f1;
         height: 4px;
         background-color: $color3;
         border-radius: 2px;
-        margin: 0 10px;
         .progress {
-          width: 30%;
+          width: 0;
           height: 100%;
           border-radius: 2px;
           background-color: $color2;
@@ -151,6 +167,7 @@ $color3: #0025f1;
           height: 16px;
           background: url(../svg/progress.svg) 0 0 no-repeat;
           background-size: contain;
+          transform: translateX(50%);
         }
       }
     }
@@ -158,9 +175,8 @@ $color3: #0025f1;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 20px;
+      margin-top: 12px;
       padding: 0 20px;
-
       svg {
         width: 28px;
         height: 28px;
