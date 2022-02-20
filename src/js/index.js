@@ -28,6 +28,7 @@ class Player {
         this.loadSong()
       })
   }
+  //绑定事件
   bind() {
     let self = this
     this.$('.btn-play-pause').onclick = function () {
@@ -48,10 +49,6 @@ class Player {
     }
     this.$('.btn-next').onclick = function () {
       self.playNextSong()
-    }
-    this.audio.ontimeupdate = function () {
-      self.locateLyric()
-      self.setProgressBar()
     }
     let swiper = new Swiper(this.$('.panels'))
     swiper.on('swiperLeft', function () {
@@ -91,11 +88,15 @@ class Player {
   }
   // 加载歌词
   loadLyric() {
+    let self = this
     fetch(this.songList[this.currentIndex].lyric)
       .then((res) => res.json())
       .then((data) => {
         this.setLyrics(data.lrc.lyric)
-        this.locateLyric()
+        this.audio.ontimeupdate = function () {
+          self.locateLyric()
+          self.setProgressBar()
+        }
       })
   }
   // 处理歌词
@@ -137,7 +138,6 @@ class Player {
   }
   // 获取当前歌词的DOM
   locateLyric() {
-    console.log(this.lyricsArr)
     let currentTime = this.audio.currentTime * 1000
     let nextLineTime = this.lyricsArr[this.lyricIndex][0]
     if (
@@ -147,6 +147,7 @@ class Player {
       let node = this.$(
         '[data-time="' + this.lyricsArr[this.lyricIndex][0] + '"]',
       )
+
       if (node) this.setLineToCanter(node)
       this.$$('.panel-effect .lyrics p')[0].innerText = this.lyricsArr[
         this.lyricIndex
@@ -159,18 +160,21 @@ class Player {
   }
   // 歌词滚动
   setLineToCanter(node) {
-    let offset = node.offsetTop - this.$('.panels .container').offsetHeight / 2
+    let offset = node.offsetTop - this.$('.panel-lyrics').offsetHeight / 2
     offset = offset > 0 ? offset : 0
     this.$('.panels .container').style.transform = `translateY(${-offset}px)`
-    this.$$('.container p').forEach((node) => {
-      node.classList.remove('current')
-    })
+    this.$$('.panel-lyrics p').forEach((node) =>
+      node.classList.remove('current'),
+    )
+    node.classList.add('current')
   }
+  //进度条滚动
   setProgressBar() {
     let percent = (this.audio.currentTime * 100) / this.audio.duration + '%'
     this.$('.bar .progress').style.width = percent
     this.$('.time-start').innerText = this.formateTime(this.audio.currentTime)
   }
+  //时间格式化
   formateTime(secondsTotal) {
     let minutes = parseInt(secondsTotal / 60)
     minutes = minutes >= 10 ? '' + minutes : '0' + minutes

@@ -261,7 +261,8 @@ var Player = /*#__PURE__*/function () {
 
         _this2.loadSong();
       });
-    }
+    } //绑定事件
+
   }, {
     key: "bind",
     value: function bind() {
@@ -287,11 +288,6 @@ var Player = /*#__PURE__*/function () {
 
       this.$('.btn-next').onclick = function () {
         self.playNextSong();
-      };
-
-      this.audio.ontimeupdate = function () {
-        self.locateLyric();
-        self.setProgressBar();
       };
 
       var swiper = new _swiper.Swiper(this.$('.panels'));
@@ -346,12 +342,16 @@ var Player = /*#__PURE__*/function () {
     value: function loadLyric() {
       var _this5 = this;
 
+      var self = this;
       fetch(this.songList[this.currentIndex].lyric).then(function (res) {
         return res.json();
       }).then(function (data) {
         _this5.setLyrics(data.lrc.lyric);
 
-        _this5.locateLyric();
+        _this5.audio.ontimeupdate = function () {
+          self.locateLyric();
+          self.setProgressBar();
+        };
       });
     } // 处理歌词
 
@@ -392,7 +392,6 @@ var Player = /*#__PURE__*/function () {
   }, {
     key: "locateLyric",
     value: function locateLyric() {
-      console.log(this.lyricsArr);
       var currentTime = this.audio.currentTime * 1000;
       var nextLineTime = this.lyricsArr[this.lyricIndex][0];
 
@@ -408,20 +407,23 @@ var Player = /*#__PURE__*/function () {
   }, {
     key: "setLineToCanter",
     value: function setLineToCanter(node) {
-      var offset = node.offsetTop - this.$('.panels .container').offsetHeight / 2;
+      var offset = node.offsetTop - this.$('.panel-lyrics').offsetHeight / 2;
       offset = offset > 0 ? offset : 0;
       this.$('.panels .container').style.transform = "translateY(".concat(-offset, "px)");
-      this.$$('.container p').forEach(function (node) {
-        node.classList.remove('current');
+      this.$$('.panel-lyrics p').forEach(function (node) {
+        return node.classList.remove('current');
       });
-    }
+      node.classList.add('current');
+    } //进度条滚动
+
   }, {
     key: "setProgressBar",
     value: function setProgressBar() {
       var percent = this.audio.currentTime * 100 / this.audio.duration + '%';
       this.$('.bar .progress').style.width = percent;
       this.$('.time-start').innerText = this.formateTime(this.audio.currentTime);
-    }
+    } //时间格式化
+
   }, {
     key: "formateTime",
     value: function formateTime(secondsTotal) {
@@ -465,7 +467,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55607" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55903" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
